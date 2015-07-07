@@ -185,7 +185,7 @@ module ParseResource
 
     # Gets the current class's model name for the URI
     def self.model_name_uri
-      key = self.model_name.to_s.gsub(/Parsecom::/, '')
+      key = self.model_name.to_s.split('::').last
       if key  == "User"
         "users"
       elsif key == "Installation"
