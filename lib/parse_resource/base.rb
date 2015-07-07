@@ -62,7 +62,7 @@ module ParseResource
     #
     # @param [Symbol] name the name of the field, eg `:author`.
     # @param [Boolean] val the return value of the field. Only use this within the class.
-    def self.field(fname, val=nil)
+    def self.field(fname)
       fname = fname.to_sym
       class_eval do
         define_method(fname) do
@@ -185,14 +185,15 @@ module ParseResource
 
     # Gets the current class's model name for the URI
     def self.model_name_uri
-      if self.model_name.to_s == "User"
+      key = self.model_name.to_s.gsub(/Parsecom::/, '')
+      if key  == "User"
         "users"
-      elsif self.model_name.to_s == "Installation"
+      elsif key == "Installation"
         "installations"
-      elsif self.model_name.to_s == "Role"
+      elsif key == "Role"
         "roles"
       else
-        "classes/#{self.model_name.to_s}"
+        "classes/#{key}"
       end
     end
 
@@ -250,7 +251,7 @@ module ParseResource
           json["body"] = item.attributes_for_saving unless method == "DELETE"
           batch_json["requests"] << json
         end
-        res.post(batch_json.to_json, :content_type => "application/json") do |resp, req, res, &block|
+        res.post(batch_json.to_json, :content_type => "application/json") do |resp, req, res2, &block|
           response = JSON.parse(resp) rescue nil
           if resp.code == 400
             return false
@@ -432,7 +433,7 @@ module ParseResource
     def create
       attrs = attributes_for_saving.to_json
       opts = {:content_type => "application/json"}
-      result = self.resource.post(attrs, opts) do |resp, req, res, &block|
+      self.resource.post(attrs, opts) do |resp, req, res, &block|
         return post_result(resp, req, res, &block)
       end
     end
@@ -445,7 +446,7 @@ module ParseResource
       put_attrs = attributes_for_saving.to_json
 
       opts = {:content_type => "application/json"}
-      result = self.instance_resource.put(put_attrs, opts) do |resp, req, res, &block|
+      self.instance_resource.put(put_attrs, opts) do |resp, req, res, &block|
         return post_result(resp, req, res, &block)
       end
     end
@@ -632,7 +633,7 @@ module ParseResource
         end #todo: support other types https://www.parse.com/docs/rest#objects-types
       else
         #relation will assign itself if an array, this will add to unsave_attributes
-         if @@has_many_relations.index(k.to_s.to_sym)
+        if @@has_many_relations.index(k.to_s.to_sym)
           if attrs[k].nil?
             result = nil
           else
@@ -689,6 +690,5 @@ module ParseResource
         super
       end
     end
-
   end
 end
