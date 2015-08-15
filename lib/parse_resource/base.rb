@@ -104,7 +104,7 @@ module ParseResource
     end
 
     def to_pointer
-      klass_name = self.class.model_name.to_s
+      klass_name = self.class.model_name.to_s.split('::').last.gsub(/Parsecom/, '')
       klass_name = "_User" if klass_name == "User"
       klass_name = "_Installation" if klass_name == "Installation"
       klass_name = "_Role" if klass_name == "Role"
@@ -185,7 +185,7 @@ module ParseResource
 
     # Gets the current class's model name for the URI
     def self.model_name_uri
-      key = self.model_name.to_s.split('::').last
+      key = self.model_name.to_s.split('::').last.gsub(/Parsecom/, '')
       if key  == "User"
         "users"
       elsif key == "Installation"
